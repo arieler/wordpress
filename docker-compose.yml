@@ -1,0 +1,113 @@
+version: "3.7"
+
+networks:
+  wordpress:
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+
+services:
+  # here is our mysql database
+  db:
+    image: mysql:5.7
+    volumes:
+      - ./db:/var/lib/mysql:delegated
+    ports:
+      - "3306:3306"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: wppass
+      MYSQL_DATABASE: wpdb
+      MYSQL_USER: wpuser
+      MYSQL_PASSWORD: wppass
+    networks:
+      - wordpress
+
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - "8081:80"
+    restart: always
+    networks:
+      - wordpress
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST:db:3306
+
+  # here is our wordpress server
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:latest
+    volumes:
+      # our persistent local data re routing
+      - .:/var/www/html/wp-content/themes/testing:delegated
+      - ./plugins:/var/www/html/wp-content/plugins
+      - ./uploads:/var/www/html/wp-content/uploads
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+      - ./logs:/var/www/html/wp-content
+    ports:
+      - "8080:80"
+    restart: always
+    networks:
+      - wordpress
+    environment:
+      # our local dev environment
+      WORDPRESS_DEBUG: 1
+      DEVELOPMENT: 1
+      # docker wp config settings
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: wppass
+      WORDPRESS_DB_NAME: wpdb
+      WORDPRESS_AUTH_KEY: 5f6ede1b94d25a2294e29eeba929a8c80a5ac0fb
+      WORDPRESS_SECURE_KEY: 5f6ede1b94d25a2294e29eeba929a8c80a5ac0fb
+      WORDPRESS_LOGGED_IN_KEY: 5f6ede1b94d25a2294e29eeba929a8c80a5ac0fb
+      WORDPRESS_NONCE_KEY: 5f6ede1b94d25a2294e29eeba929a8c80a5ac0fb
+      WORDPRESS_SECURE_AUTH_SALT: 5f6ede1b94d25a2294e29eeba929a8c80a5ac0fb
+      WORDPRESS_LOGGED_IN_SALT: 5f6ede1b94d25a2294e29eeba929a8c80a5ac0fb
+      WORDPRESS_NONCE_SALT: 5f6ede1b94d25a2294e29eeba929a8c80a5ac0fb
+      WORDPRESS_CONFIG_EXTRA: |
+
+        /* Development parameters */
+        define('WP_CACHE', false);
+        define('ENVIRONMENT', 'local');
+        define('WP_DEBUG', true);
+        define( 'WP_DEBUG_LOG', true );
+        define( 'WP_DEBUG_DISPLAY', false );
+        @ini_set( 'display_errors', 0 );
+
+        /* Configure mail server */
+        define('WORDPRESS_SMTP_AUTH', false);
+        define('WORDPRESS_SMTP_SECURE', '');
+        define('WORDPRESS_SMTP_HOST', 'mailhog');
+        define('WORDPRESS_SMTP_PORT', '1025');
+        define('WORDPRESS_SMTP_USERNAME', null);
+        define('WORDPRESS_SMTP_PASSWORD', null);
+        define('WORDPRESS_SMTP_FROM', 'whoever@example.com');
+        define('WORDPRESS_SMTP_FROM_NAME', 'Whoever');
+
+        /* add any more custom wp-config defines here */
+
+  wpcli:
+    depends_on:
+      - db
+      - wordpress
+    image: wordpress:cli
+    user: root
+    networks:
+      - wordpress
+    entrypoint: wp
+    command: "--info"
+    container_name: wpcli
+    volumes:
+      - .:/var/www/htmls
+    working_dir: /var/www/html
+
+  # here is our mail hog server
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "8025:8025"
+    networks:
+      - wordpress
