@@ -142,25 +142,6 @@ add_action('init', 'wporg_custom_post_type');
 
 
 function crtheme_customize_register( $wp_customize ) {
-	// Do stuff with WP_Customize_Manager object.
-	/*
-	$wp_customize->add_panel();
-	$wp_customize->get_panel();
-	$wp_customize->remove_panel();
-  
-	$wp_customize->add_section();
-	$wp_customize->get_section();
-	$wp_customize->remove_section();
-  
-	$wp_customize->add_setting();
-	$wp_customize->get_setting();
-	$wp_customize->remove_setting();
-  
-	$wp_customize->add_control();
-	$wp_customize->get_control();
-	$wp_customize->remove_control();
-	*/
-
 	// Add a custom panel.
 	$wp_customize->add_panel( 'Theme', [
 		'title' => __( 'Theme' ),
@@ -239,7 +220,7 @@ function crtheme_customize_register( $wp_customize ) {
 		'default' => '',
 		'transport' => 'refresh',
 		'sanitize_callback' => '',
-		'sanitize_js_callback' => '', 
+		'sanitize_js_callback' => '',
 	]);
 	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'background_color', [
 		'label' => __( 'Background Color', 'crtheme_textdomain' ),
@@ -274,10 +255,7 @@ function custom_footer_output() {
 	Retrieve Theme Header Logo Value
 */
 function custom_logo_output() {
-	echo '<style type="text/css" id="custom-theme-css">' .
-	get_theme_mod( 'custom_theme_css', '' ) . '</style>';
-	echo '<style type="text/css" id="custom-plugin-css">' .
-	get_option( 'custom_plugin_css', '' ) . '</style>';
+	return get_theme_mod( 'logo_image', '' );
 }
 add_action( 'wp_head', 'custom_logo_output');
 
@@ -285,10 +263,25 @@ add_action( 'wp_head', 'custom_logo_output');
 	Retrieve Color Theme Value
 */
 function custom_color_theme_output() {
-	echo '<style type="text/css" id="custom-theme-css">' .
-	get_theme_mod( 'custom_theme_css', '' ) . '</style>';
-	echo '<style type="text/css" id="custom-plugin-css">' .
-	get_option( 'custom_plugin_css', '' ) . '</style>';
+	$colorTheme = get_theme_mod( 'color_theme', '' );
+
+	if($colorTheme == "blackandwhite"){
+		echo '<style type="text/css" id="blackandwhite-css">';
+		echo '.btn-primary { color: #fff;background-color: #000;border-color: #fff; }';
+		echo '.btn-primary:hover { color: #000;background-color: #fff;border-color: #000; }';
+		echo '.btn-primary:focus { box-shadow: 0 0 0 0.25rem rgb(130 130 130 / 50%); }';
+		echo '.btn-primary:active:focus { color: #fff, background-color: #000; border-color: #000;box-shadow: 0 0 0 0.25rem rgb(130 130 130 / 50%);  }';
+		echo '.btn-primary:active { color: #000; background-color: #e8e8e8; border-color: #c5c4c2; }';
+		echo '</style>';
+	} else if($colorTheme == "whiteandblack") {
+		echo '<style type="text/css" id="whiteandblack-css">';
+		echo '.btn-primary { color: #000;background-color: #fff;border-color: #000; }';
+		echo '.btn-primary:hover { color: #fff;background-color: #000;border-color: #fff; }';
+		echo '.btn-primary:focus { box-shadow: 0 0 0 0.25rem rgb(130 130 130 / 50%); }';
+		echo '.btn-primary:active:focus { color: #fff, background-color: #000; border-color: #000;box-shadow: 0 0 0 0.25rem rgb(130 130 130 / 50%);  }';
+		echo '.btn-primary:active { color: #fff; background-color: #333; border-color: #fff; }';
+		echo '</style>';
+	}
 }
 add_action( 'wp_head', 'custom_color_theme_output');
 
