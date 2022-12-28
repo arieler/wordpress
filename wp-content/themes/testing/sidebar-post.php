@@ -1,7 +1,8 @@
 <!-- Navigation-->
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top navbar-shrink" id="mainNav">
 	<div class="container">
-		<a class="navbar-brand" href="#page-top">
+		<a class="navbar-brand" href="#page-top"
+			>
 			<?php echo custom_logo_output(); ?>
 		</a>
 		<button
@@ -31,16 +32,6 @@
 		</div>
 	</div>
 </nav>
-<!-- Masthead-->
-<header class="masthead">
-	<div class="container">
-	<div class="masthead-subheading">Welcome To Our Studio!</div>
-	<div class="masthead-heading text-uppercase">It's Nice To Meet You</div>
-	<a class="btn btn-primary btn-xl text-uppercase" href="#services"
-		>Tell Me More</a
-	>
-	</div>
-</header>
 
 
 <!-- <div id="sidebar-foooter" class="sidebar">-->

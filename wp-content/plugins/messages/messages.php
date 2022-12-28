@@ -32,7 +32,9 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 /**
+ * 
  * Register the "message" custom post type
+ * 
  */
 function WPM_setup_post_type() {
 	$labels = [
@@ -143,7 +145,6 @@ function wpm_settings_field_callback() {
  * Messages SubMenu fn.
  */
 function wpm_setup_page_html() {
-	
 	loadCssJSScript();
     $messagesList = [];
 	$contacts = [];
@@ -396,7 +397,9 @@ function wpm_setup_page_html() {
 }
 
 /**
+ * 
  * Plugin Menu Registering.
+ * 
  */
 if ( is_admin() ) add_action( 'admin_menu', 'wpm_options_page' );
 function wpm_options_page() {
@@ -415,7 +418,9 @@ function wpm_options_page() {
 }
 
 /**
+ * 
  * It handles the submenu options page form submit.
+ * 
  */
 function wpm_submenu_options_page_submit() {
 	/*
@@ -449,7 +454,9 @@ function wpm_submenu_options_page_submit() {
 }
 
 /**
- * It Enqueues the Css and JS scripts.
+ * 
+ * It Enqueues the CSS and JS scripts.
+ * 
  */
 function loadCssJSScript(){
 	wp_enqueue_style('main-style', 
@@ -485,7 +492,9 @@ function loadCssJSScript(){
 
 
 /**
+ * 
  * Ajax Request Handlers Functions
+ * 
  */
 
 /**
@@ -499,7 +508,7 @@ add_action( 'wp_ajax_messages', 'my_ajax_messages_handler' );
 function my_ajax_messages_handler() {
 	$id = checkNotEmpty(wp_unslash($_POST['id']));
 	$messages = getMessages($id);
-echo '<pre>';var_dump($messages);exit();
+	echo '<pre>';var_dump($messages);exit();
 	wp_send_json($messages, 200);
 }
 

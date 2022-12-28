@@ -1,3 +1,10 @@
+    <?php if(is_customize_preview()): ?>
+      <div class="row">
+        <div class="col-12">
+          <a href="#" id="hide-controls" class="btn btn-secondary">Ocultar Controles</a>
+        </div>
+      </div>
+    <?php endif;?>
     <!-- Services-->
     <section class="page-section" id="services">
       <div class="container">
@@ -39,38 +46,41 @@
         </div>
         <div class="row">
             <?php
+            query_posts('post_type=post');
             if (have_posts()) {
                 while (have_posts()) :
                     the_post();
             ?>
                 <div class="col-lg-4">
-                <article class="post" data-id="<?php the_ID();?>">
-                    <?php if(has_post_thumbnail()) : ?>
-                        <img
-                            class="mx-auto rounded-circle"
-                            src="<?php the_post_thumbnail();?>"
-                            alt="..."
-                        />
-                    <?php endif; ?>
-                    <p class="text-muted wp-category"><?php the_category(', ');?></p>
-                    <small>Creado el <?php the_time('F jS, Y'); ?> por <?php the_author_posts_link(); ?></small>
-                    <a class="wp-post-link" 
-                        href="<?php the_permalink();?>" 
-                        title="Permanent Link to <?php the_title_attribute(); ?>"
-                    >
-                        <h4><?php the_title(); ?></h4>
-                    </a>
-                    <div class="row">
-                        <div class="excerpt col-lg-8 mx-auto text-center">
-                            <?php the_excerpt( 'Ver más...', true );?>
-                        </div>
-                    </div>
-                    <p class="postmetadata">
-                        <strong>|</strong>
-                        <?php edit_post_link('Edit','','<strong>|</strong>'); ?>  
-                        <?php comments_popup_link('No Comments »', '1 Comment »', '% Comments »'); ?></p> 
-                    </p>
-                </article>
+                  <article class="post" data-id="<?php the_ID();?>">
+                      <?php if(has_post_thumbnail()) : ?>
+                          <img
+                              class="mx-auto rounded-circle"
+                              src="<?php the_post_thumbnail();?>"
+                              alt="..."
+                          />
+                      <?php endif; ?>
+                      <p class="text-muted wp-category"><?php the_category(', ');?></p>
+                      <small>Creado el <?php the_time('F jS, Y'); ?> por <?php the_author_posts_link(); ?></small>
+                      <a class="wp-post-link" 
+                          href="<?php the_permalink();?>" 
+                          title="Permanent Link to <?php the_title_attribute(); ?>"
+                      >
+                          <h4><?php the_title(); ?></h4>
+                      </a>
+                      <!--
+                      <div class="row">
+                          <div class="excerpt col-lg-8 mx-auto text-center">
+                              <?php //the_excerpt( 'Ver más...', true );?>
+                          </div>
+                      </div>
+                      -->
+                      <p class="postmetadata">
+                          <strong>|</strong>
+                          <?php edit_post_link('Edit','','<strong>|</strong>'); ?>  
+                          <?php comments_popup_link('No Comments »', '1 Comment »', '% Comments »'); ?></p> 
+                      </p>
+                  </article>
                 </div>
             <?php
                 endwhile;

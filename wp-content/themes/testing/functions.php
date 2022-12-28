@@ -1,9 +1,10 @@
 <?php 
 
 // add the action
-add_action('wp_mail_failed', 'action_wp_mail_failed', 10, 1);
+/*add_action('wp_mail_failed', 'action_wp_mail_failed', 10, 1);*/
 
 // configure PHPMailer to send through SMTP
+/*
 add_action('phpmailer_init', function ($phpmailer) {
     $phpmailer->isSMTP();
     
@@ -20,7 +21,13 @@ add_action('phpmailer_init', function ($phpmailer) {
     $phpmailer->Username = WORDPRESS_SMTP_USERNAME;
     $phpmailer->Password = WORDPRESS_SMTP_PASSWORD;
 });
+*/
 
+/**
+ * 
+ * crtheme_setup
+ * 
+ */
 if ( ! function_exists( 'crtheme_setup' ) ) {
 	/**
 	 * Sets up theme defaults and registers support for various
@@ -35,7 +42,7 @@ if ( ! function_exists( 'crtheme_setup' ) ) {
 		 * Make theme available for translation.
 		 * Translations can be placed in the /languages/ directory.
 		 */
-		load_theme_textdomain( 'myfirsttheme', get_template_directory() . '/languages' );
+		load_theme_textdomain( 'crtheme', get_template_directory() . '/languages' );
 
 		/**
 		 * Add default posts and comments RSS feed links to <head>.
@@ -51,8 +58,8 @@ if ( ! function_exists( 'crtheme_setup' ) ) {
 		 * Add support for two custom navigation menus.
 		 */
 		register_nav_menus([
-			'primary'   => __( 'Primary Menu', 'myfirsttheme' ),
-			'secondary' => __( 'Secondary Menu', 'myfirsttheme' ),
+			'primary'   => __( 'Primary Menu', 'crttheme' ),
+			'secondary' => __( 'Secondary Menu', 'crtheme' ),
 		]);
 
 		/**
@@ -62,14 +69,18 @@ if ( ! function_exists( 'crtheme_setup' ) ) {
 		add_theme_support( 'post-formats', [ 'aside', 'gallery', 'quote', 'image', 'video' ] );
 	}
 
-} // crtheme_setup
-
+}
 add_action( 'after_setup_theme', 'crtheme_setup' );
 
 if ( ! isset ( $content_width) ) {
     $content_width = 800;
 }
 
+/**
+ * 
+ * CodingRock Theme Sidebar Registering
+ *   
+ */
 function crtheme_register_sidebars() {
 	register_sidebar([
 		'name' => 'Primary Sidebar',
@@ -80,11 +91,12 @@ function crtheme_register_sidebars() {
 		'after_title' => '</h3>',
 	]);
 }
-
 add_action( 'widgets_init', 'crtheme_register_sidebars' );
 
-/* 
-	Custom WP-Login Form
+/*
+* 
+* Customizing the WP-Login Form(Admin)
+*
 */
 function my_login_logo() { 
 ?>
@@ -102,24 +114,50 @@ function my_login_logo() {
 }
 add_action( 'login_enqueue_scripts', 'my_login_logo' );
 
+/**
+ * 
+ */
 function my_login_logo_url() {
     return home_url();
 }
 add_filter( 'login_headerurl', 'my_login_logo_url' );
 
+/**
+ * 
+ */
 function my_login_logo_url_title() {
     return 'Your Site Name and Info';
 }
 add_filter( 'login_headertext', 'my_login_logo_url_title' );
 
+/**
+ * 
+ */
 add_action('wp_enqueue_scripts', function () {
     wp_enqueue_style('style', get_stylesheet_uri());
-	wp_enqueue_script('scripts', get_template_directory_uri() . '/assets/js/scripts.js');
+	wp_enqueue_style('base-style', get_template_directory_uri() . '/assets/css/base.css');
+	
+	if ( is_front_page() && is_home() )
+		wp_enqueue_script('scripts', get_template_directory_uri() . '/assets/js/scripts.js');
+
+	if ( is_customize_preview() ){
+		wp_enqueue_script('scripts', get_template_directory_uri() . '/assets/js/customize.js');
+		wp_enqueue_script('scripts', get_template_directory_uri() . '/assets/js/customize-preview.js');
+	}
 });
 
+/**
+ * 
+ */
 function my_excerpt_length($length){ return 50; } 
 add_filter('excerpt_length', 'my_excerpt_length');
 
+/**
+ *
+ * It register a new Custom Post Type: Services
+ * displayed in the site theme
+ *  
+ */
 function wporg_custom_post_type() {
 	register_post_type('wporg_service',
 		[
@@ -139,14 +177,26 @@ function wporg_custom_post_type() {
 }
 add_action('init', 'wporg_custom_post_type');
 
-
-
+/**
+ * 
+ * Customizer Registering
+ * 
+ * @param - $wp_customize - It allows to add panels, 
+ * settings and controls to the Wp Theme Customizer
+ * 
+ * @return Void - It appends a new Custom Panel to the WP Theme Customizer
+ *
+ */
 function crtheme_customize_register( $wp_customize ) {
 	// Add a custom panel.
 	$wp_customize->add_panel( 'Theme', [
 		'title' => __( 'Theme' ),
 		'description' => "Theme customizations",
 		'priority' => 160,
+		'active_callback' => function(){
+			return is_front_page() && is_home();
+
+		},
 	]);
 
 	// Add a footer/copyright information section.
@@ -155,13 +205,13 @@ function crtheme_customize_register( $wp_customize ) {
 		'panel' => 'Theme',
 	]);
 	$wp_customize->add_setting('footer_text', [
-		'type' => 'theme_mod', 
+		'type' => 'theme_mod',
 		'capability' => 'edit_theme_options',
-		'theme_supports' => '', 
+		'theme_supports' => '',
 		'default' => 'Copyright © '.date('Y').' Distributed By CodingRock - Made with WP',
 		'transport' => 'refresh',
 		'sanitize_callback' => '',
-		'sanitize_js_callback' => '', 
+		'sanitize_js_callback' => '',
 	]);
 	$wp_customize->add_control( 'footer_text', [
 		'label' => __( 'Footer Text' ),
@@ -210,57 +260,39 @@ function crtheme_customize_register( $wp_customize ) {
 		],
 		'section' => 'header',
 	]);
-
-	//Theme Buttons
-	//Background Color
-	$wp_customize->add_setting('background_color', [
-		'type' => 'theme_mod', 
-		'capability' => 'edit_theme_options',
-		'theme_supports' => '', 
-		'default' => '',
-		'transport' => 'refresh',
-		'sanitize_callback' => '',
-		'sanitize_js_callback' => '',
-	]);
-	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'background_color', [
-		'label' => __( 'Background Color', 'crtheme_textdomain' ),
-		'section' => 'header',
-	]));
-
-	//Text Color
-	$wp_customize->add_setting('text_color', [
-		'type' => 'theme_mod', 
-		'capability' => 'edit_theme_options',
-		'theme_supports' => '', 
-		'default' => '',
-		'transport' => 'refresh',
-		'sanitize_callback' => '',
-		'sanitize_js_callback' => '', 
-	]);
-	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'text_color', [
-		'label' => __( 'Text Color', 'crtheme_textdomain' ),
-		'section' => 'header',
-	]));
 }
 add_action( 'customize_register', 'crtheme_customize_register' );
 
-/*
-	Retrieve Theme Footer Text Value
-*/
+/**
+ * 
+ *	Retrieves Theme Footer Value
+ *
+ */
 function custom_footer_output() {
 	return get_theme_mod( 'footer_text', 'Copyright © '.date('Y').' Distributed By CodingRock - Made with WP' );
 }
 
-/*
-	Retrieve Theme Header Logo Value
-*/
+/**
+ * 
+ *	Retrieve Theme Header Logo Value
+ *
+ */
 function custom_logo_output() {
-	return get_theme_mod( 'logo_image', '' );
-}
-add_action( 'wp_head', 'custom_logo_output');
+	$att_id = get_theme_mod('logo_image', '');
+	$img_src = false;
 
-/*
-	Retrieve Color Theme Value
+	if( $att_id!='' )
+		$img_src = wp_get_attachment_image( $att_id, 'medium' );
+	else
+		$img_src = '<img src="'.get_template_directory_uri().'/assets/img/logo.png" alt="..."/>';
+
+	return $img_src;
+}
+
+/**
+ *
+ *	Retrieve Color Theme Value
+ *
 */
 function custom_color_theme_output() {
 	$colorTheme = get_theme_mod( 'color_theme', '' );
@@ -272,6 +304,9 @@ function custom_color_theme_output() {
 		echo '.btn-primary:focus { box-shadow: 0 0 0 0.25rem rgb(130 130 130 / 50%); }';
 		echo '.btn-primary:active:focus { color: #fff, background-color: #000; border-color: #000;box-shadow: 0 0 0 0.25rem rgb(130 130 130 / 50%);  }';
 		echo '.btn-primary:active { color: #000; background-color: #e8e8e8; border-color: #c5c4c2; }';
+		echo '.text-primary { color: #333 !important; }';
+		echo '.nav-link { color: #333333; }';
+		echo '.navbar-nav .nav-item .nav-link.active, .navbar-nav .nav-item .nav-link:hover { color: #333333; }';
 		echo '</style>';
 	} else if($colorTheme == "whiteandblack") {
 		echo '<style type="text/css" id="whiteandblack-css">';
@@ -280,9 +315,18 @@ function custom_color_theme_output() {
 		echo '.btn-primary:focus { box-shadow: 0 0 0 0.25rem rgb(130 130 130 / 50%); }';
 		echo '.btn-primary:active:focus { color: #fff, background-color: #000; border-color: #000;box-shadow: 0 0 0 0.25rem rgb(130 130 130 / 50%);  }';
 		echo '.btn-primary:active { color: #fff; background-color: #333; border-color: #fff; }';
+		echo '.text-primary { color: #333 !important; }';
+		echo '.nav-link { color: #333333; }';
+		echo '.navbar-nav .nav-item .nav-link.active, .navbar-nav .nav-item .nav-link:hover { color: #333333; }';
 		echo '</style>';
 	}
 }
 add_action( 'wp_head', 'custom_color_theme_output');
+
+// Customizer additions.
+/*
+require get_template_directory() . '/classes/class-cr-customize.php';
+new CR_Customize();
+*/
 
 ?>
